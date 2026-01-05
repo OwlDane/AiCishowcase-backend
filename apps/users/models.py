@@ -22,6 +22,8 @@ class StudentProfile(models.Model):
     angkatan = models.CharField(max_length=50)
     bio = models.TextField(blank=True)
     photo = models.ImageField(upload_to='students/', blank=True, null=True)
+    github_url = models.URLField(blank=True, null=True)
+    linkedin_url = models.URLField(blank=True, null=True)
 
     def __str__(self):
         return self.full_name
