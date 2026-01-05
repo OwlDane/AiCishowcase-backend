@@ -32,7 +32,7 @@ This project follows a modular Django architecture, where functionality is split
 1. **Clone the repository**
 
    ```bash
-   git clone <repository-url>
+   git clone https://github.com/OwlDane/AiCishowcase-backend.git
    cd aicishowcase-backend
    ```
 
