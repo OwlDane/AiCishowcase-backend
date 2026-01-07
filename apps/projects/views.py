@@ -5,10 +5,14 @@ from django_filters.rest_framework import DjangoFilterBackend
 from .models import Category, Project
 from .serializers import CategorySerializer, ProjectSerializer, ProjectCreateSerializer
 
-class CategoryViewSet(viewsets.ReadOnlyModelViewSet):
+class CategoryViewSet(viewsets.ModelViewSet):
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
-    permission_classes = [permissions.AllowAny]
+    
+    def get_permissions(self):
+        if self.action in ['list', 'retrieve']:
+            return [permissions.AllowAny()]
+        return [permissions.IsAdminUser()]
 
 class ProjectViewSet(viewsets.ModelViewSet):
     queryset = Project.objects.all()
