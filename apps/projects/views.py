@@ -33,16 +33,21 @@ class ProjectViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         queryset = Project.objects.all()
-        if self.action in ['list', 'retrieve']:
-            # Only show approved projects to public
-            if not self.request.user.is_authenticated or self.request.user.role != 'ADMIN':
-                queryset = queryset.filter(status=Project.Status.APPROVED)
-        
-        # If user is SISWA, they can see their own projects regardless of status in special action
-        return queryset
+        # Admin can see all projects
+        if self.request.user.is_authenticated and self.request.user.role == 'ADMIN':
+            return queryset
+            
+        # Public users only see approved projects
+        return queryset.filter(status=Project.Status.APPROVED)
 
     def perform_create(self, serializer):
-        serializer.save(student=self.request.user.student_profile)
+        # The serializer handles student assignment now
+        project = serializer.save()
+        
+        # If created by admin, auto-approve
+        if self.request.user.role == 'ADMIN':
+            project.status = Project.Status.APPROVED
+            project.save()
 
     @action(detail=False, methods=['get'], permission_classes=[permissions.IsAuthenticated])
     def my_projects(self, request):

@@ -25,7 +25,6 @@ class Project(models.Model):
     title = models.CharField(max_length=255)
     description = models.TextField()
     video_url = models.URLField(max_length=500, blank=True)
-    github_url = models.URLField(max_length=500, blank=True)
     demo_url = models.URLField(max_length=500, blank=True)
     thumbnail = models.ImageField(upload_to='projects/thumbnails/')
     status = models.CharField(max_length=10, choices=Status.choices, default=Status.PENDING)

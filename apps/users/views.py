@@ -1,4 +1,4 @@
-from rest_framework import generics, status, permissions
+from rest_framework import generics, status, permissions, filters
 from rest_framework.response import Response
 from rest_framework_simplejwt.views import TokenObtainPairView
 from django.contrib.auth import get_user_model
@@ -28,3 +28,10 @@ class UserDetailView(generics.RetrieveAPIView):
 
     def get_object(self):
         return self.request.user
+
+class StudentProfileListView(generics.ListAPIView):
+    queryset = StudentProfile.objects.all()
+    serializer_class = StudentProfileSerializer
+    permission_classes = [permissions.IsAdminUser]
+    filter_backends = [filters.SearchFilter]
+    search_fields = ['full_name', 'angkatan']
