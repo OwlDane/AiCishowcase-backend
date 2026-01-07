@@ -18,7 +18,7 @@ class ProjectViewSet(viewsets.ModelViewSet):
     queryset = Project.objects.all()
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
     filterset_fields = ['category', 'student__angkatan', 'status']
-    search_fields = ['title', 'description', 'student__full_name']
+    search_fields = ['title', 'description', 'student__full_name', 'student_name']
     ordering_fields = ['created_at', 'likes_count']
 
     def get_serializer_class(self):
