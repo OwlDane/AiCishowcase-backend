@@ -15,7 +15,7 @@ class ProjectSerializer(serializers.ModelSerializer):
     class Meta:
         model = Project
         fields = [
-            'id', 'student', 'category', 'category_name', 
+            'id', 'student', 'student_name', 'category', 'category_name', 
             'title', 'description', 'video_url', 'demo_url',
             'thumbnail', 'status', 'likes_count', 
             'created_at', 'updated_at'
@@ -27,7 +27,8 @@ class ProjectCreateSerializer(serializers.ModelSerializer):
         model = Project
         fields = [
             'category', 'title', 'description', 
-            'video_url', 'demo_url', 'thumbnail', 'student'
+            'video_url', 'demo_url', 'thumbnail', 
+            'student', 'student_name'
         ]
         extra_kwargs = {
             'student': {'required': False}
@@ -36,12 +37,20 @@ class ProjectCreateSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         request = self.context.get('request')
         student = validated_data.pop('student', None)
+        student_name = validated_data.pop('student_name', None)
         
-        # If no student provided, try to use the logged in user's profile (SISWA logic)
-        if not student and hasattr(request.user, 'student_profile'):
-            student = request.user.student_profile
-            
+        # If no explicit student profile provided
         if not student:
-            raise serializers.ValidationError({"student": "A student must be assigned to the project."})
-            
-        return Project.objects.create(student=student, **validated_data)
+            # If user is SISWA, use their profile
+            if hasattr(request.user, 'student_profile'):
+                student = request.user.student_profile
+            # If student_name is provided, we'll store it directly
+            # but if neither, raise error
+            elif not student_name:
+                raise serializers.ValidationError({"student": "Either student profile or student name must be provided."})
+        
+        return Project.objects.create(
+            student=student, 
+            student_name=student_name,
+            **validated_data
+        )

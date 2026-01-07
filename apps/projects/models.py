@@ -20,7 +20,8 @@ class Project(models.Model):
         REJECTED = 'REJECTED', 'Rejected'
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    student = models.ForeignKey(StudentProfile, on_delete=models.CASCADE, related_name='projects')
+    student = models.ForeignKey(StudentProfile, on_delete=models.CASCADE, related_name='projects', null=True, blank=True)
+    student_name = models.CharField(max_length=255, blank=True, null=True)
     category = models.ForeignKey(Category, on_delete=models.SET_NULL, null=True, related_name='projects')
     title = models.CharField(max_length=255)
     description = models.TextField()
