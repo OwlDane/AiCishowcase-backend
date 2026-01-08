@@ -23,16 +23,18 @@ class LikeViewSet(viewsets.ModelViewSet):
         ip_address = request.META.get('REMOTE_ADDR')
 
         if user:
+            # Authenticated users can toggle
             existing_like = Like.objects.filter(project_id=project_id, user=user).first()
+            if existing_like:
+                existing_like.delete()
+                return Response({"detail": "Like removed.", "liked": False}, status=status.HTTP_200_OK)
         else:
-            existing_like = Like.objects.filter(project_id=project_id, ip_address=ip_address, user__isnull=True).first()
+            # Unauthenticated users: IP-based check, strict one-way to prevent easy spam
+            if Like.objects.filter(project_id=project_id, ip_address=ip_address, user__isnull=True).exists():
+                return Response({"detail": "You have already liked this project."}, status=status.HTTP_400_BAD_REQUEST)
 
-        if existing_like:
-            existing_like.delete()
-            return Response({"detail": "Like removed.", "liked": False}, status=status.HTTP_200_OK)
-        else:
-            # Create new like
-            serializer = self.get_serializer(data={'project': project_id})
-            serializer.is_valid(raise_exception=True)
-            serializer.save()
-            return Response({"detail": "Like added.", "liked": True}, status=status.HTTP_201_CREATED)
+        # Create new like (either for authenticated or fresh IP)
+        serializer = self.get_serializer(data={'project': project_id})
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response({"detail": "Like added.", "liked": True}, status=status.HTTP_201_CREATED)
